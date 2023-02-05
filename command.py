@@ -40,10 +40,11 @@ class Command:
             self.bot.sendDocument(self.chat_id, document=open('video.mp4'))
         elif command == 'muzik':
             self.bot.sendAudio(self.chat_id, audio=open('test.wav', 'rb'))
-        elif(command == "logImage"):
+        elif(command == "log image"):
             self.bot.sendPhoto(self.chat_id, photo=open("image.png", "rb"))
         elif(command == "log"):
-            self.bot.sendVideo(self.chat_id, document=open("log.txt", "r"))
+            self.router.getIp()
+            self.bot.sendDocument(self.chat_id, document=open("log.txt", "rb"))
         elif(command == "real ip"):
             self.router.getIp()
             ip = self.router.IP()
@@ -51,7 +52,7 @@ class Command:
         elif command == 'video':
             self.router.getIp()
             ip = self.router.IP()
-            self.bot.sendDocument(self.chat_id, video=f'http://{ip}/sex.mp4')
+            self.bot.sendDocument(self.chat_id, video=f'http://{ip}/video.mp4')
         else:
             self.bot.sendMessage(self.chat_id, str("Əmr yanlışdır!"))
 
@@ -84,10 +85,11 @@ class Router:
         self.driver.get("http://192.168.1.1/status/syslog.log")
         pageSource = self.driver.page_source
         self.logFile.write(pageSource)
+        self.logFile.close()
         cordinate = pageSource.find("Address")
         self.realIP = pageSource[cordinate:].split("\n")[0].split(":")[1]
-        print(pageSource[cordinate:].split("\n")[0].split(":")[1])
         self.driver.save_screenshot("image.png")
 
     def IP(self):
+        print(self.realIP)
         return self.realIP
