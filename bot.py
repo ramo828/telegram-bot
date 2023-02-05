@@ -10,7 +10,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
 from time import sleep
 
-bot1 = telepot.Bot('5882426733:AAGHhagkLD_4rmShINuWXmbmZM_5_gr3EOI')
+bot1 = telepot.Bot('---')
 def handle(msg):
     content_type = telepot.glance(msg)[0]
     chat_type = telepot.glance(msg)[1]
