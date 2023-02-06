@@ -1,3 +1,6 @@
+"""
+    Developper: Ramiz Mammadli
+"""
 import requests
 import datetime
 from selenium import webdriver
@@ -8,8 +11,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
 from time import sleep
-from os import system
-from os.path import exists
 import settings as sett
 
 class Command:
@@ -57,14 +58,17 @@ class Command:
         elif(self.filter(command) == "log"):
             self.router.getIp()
             self.bot.sendDocument(self.chat_id, document=open("log.txt", "rb"))
+            self.router.tearDown()
         elif(self.filter(command) == "real ip"):
             self.router.getIp()
             self.ip = self.router.IP()
             self.bot.sendMessage(self.chat_id, str(self.ip))
+            self.router.tearDown()
         elif self.filter(command) == 'video':
             self.router.getIp()
             self.ip = self.router.IP()
             self.bot.sendDocument(self.chat_id, video=f'http://{self.ip}/video.mp4')
+            self.router.tearDown()
         elif self.filter(command) == 'history':
             hist = self.historyRead()
             self.bot.sendMessage(self.chat_id, str(hist))
@@ -82,6 +86,7 @@ class Command:
                 self.bot.sendMessage(self.chat_id, str(self.info))
             else:
                 self.bot.sendMessage(self.chat_id, str("Bir xəta baş verdi!"))
+            self.router.tearDown()
 
         else:
             self.bot.sendMessage(self.chat_id, str("Əmr yanlışdır!"))
@@ -110,30 +115,48 @@ class Router:
                 
         self.chrome_options = Options()
         self.chrome_options.add_argument("--headless")
+        self.chrome_options.add_argument('--disable-blink-features=AutomationControlled')
+        self.chrome_options.add_argument('--no-sandbox')
+        self.chrome_options.add_argument('--disable-dev-shm-usage')
+        self.chrome_options.add_argument('--disable-blink-features=AutomationControlled')
+        self.chrome_options.add_argument("--disable-gpu")
+        self.chrome_options.add_experimental_option('useAutomationExtension', False)
+        self.chrome_options.add_argument('--disable-dev-shm-usage')
+        self.chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
         self.logFile = open("log.txt", "w")
         self.driver = webdriver.Chrome(executable_path='chromedriver', options=self.chrome_options)
         self.wait = WebDriverWait(self.driver, 25)    
         self.realIP = ""
     def getIp(self):
-        self.driver.get('http://192.168.1.1')
+        self.driver.get(f'http://{sett.modem_url}')
         username = self.wait.until(EC.presence_of_element_located((By.NAME, "Login_Name")))
         password = self.wait.until(EC.presence_of_element_located((By.NAME, "Login_Pwd")))
         username.send_keys(sett.modem_login)
         password.send_keys(sett.modem_pass)
         password.send_keys(Keys.ENTER)
         sleep(0.5)
-        self.driver.get("http://192.168.1.1/status/syslog.log")
+        self.driver.get(f"http://{sett.modem_url}/status/syslog.log")
         pageSource = self.driver.page_source
         self.logFile.write(pageSource)
-        self.logFile.close()
         cordinate = pageSource.find("Address")
         self.realIP = pageSource[cordinate:].split("\n")[0].split(":")[1]
         self.driver.save_screenshot("image.png")
+        # self.logFile.close() 
+        """
+            Xetaya sebeb olur
+        """
+
 
     def IP(self):
         print(self.realIP)
         return self.realIP
-
+    def tearDown(self):
+        self.driver.delete_all_cookies()
+        
+        # self.driver.quit()
+        """
+            Xetaya sebeb olur
+        """
 class Dns:
     def __init__(self):
         self.dns_api = ""
