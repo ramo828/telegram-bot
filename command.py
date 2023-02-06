@@ -10,6 +10,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from time import sleep
 from os import system
 from os.path import exists
+import settings as sett
 
 class Command:
     def __init__(self, bot):
@@ -21,10 +22,13 @@ class Command:
         self.chat_id = chat_id
         self.chat_type = chat_type
         self.ip = ""
-        self.dns_api = ""
-        self.dns_domain = "opiaz"
+        self.dns_api = sett.duckdns_api
+        self.dns_domain = sett.duckdns_domain_name
         self.dns_ip = ""
-        self.script = ""
+        self.info = ""
+        self.history = open("history.txt","a+")
+        self.history_read = open("history.txt","r")
+
 
     def getCommand(self, command):
         if(self.command_type == 'document'):
@@ -34,6 +38,7 @@ class Command:
             self.set_command(command["text"])
 
     def set_command(self, command):
+        self.historyCommand(command)
         if(self.filter(command) == "/start"):
             self.bot.sendMessage(self.chat_id, str("ip\nzaman\nresim\nmuzik"))
         elif(self.filter(command) == "ip"):
@@ -60,12 +65,21 @@ class Command:
             self.router.getIp()
             self.ip = self.router.IP()
             self.bot.sendDocument(self.chat_id, video=f'http://{self.ip}/video.mp4')
+        elif self.filter(command) == 'history':
+            hist = self.historyRead()
+            self.bot.sendMessage(self.chat_id, str(hist))
+        elif self.filter(command) == 'history file':
+            self.bot.sendDocument(self.chat_id, document=open("history.txt", "rb"))
         elif(self.filter(command) == 'init dns'):
+            self.router.getIp()
+            self.ip = self.router.IP()
             self.dns_ip = self.ip
-            self.script = f'echo url="https://www.duckdns.org/update?domains={self.dns_domain}&token={self.dns_api}&ip={self.dns_ip}" | curl -k -o duck.log -K -'
-            system(self.script)
-            if(exists("duck.log")):
-                self.bot.sendMessage(self.chat_id, str(f"{self.dns_domain}.duckdns.org"))
+            dns = Dns()
+            dns.init_dns(domain=self.dns_domain, ip = self.dns_ip, api=self.dns_api)
+            status = dns.run()
+            if(status == 1):
+                self.info = f"DNS: {self.dns_domain}.duckdns.org\nIP: {self.dns_ip}"
+                self.bot.sendMessage(self.chat_id, str(self.info))
             else:
                 self.bot.sendMessage(self.chat_id, str("Bir xəta baş verdi!"))
 
@@ -82,6 +96,13 @@ class Command:
         pass
     def filter(self, inp = ""):
         return inp.lower()
+    def historyCommand(self, command):
+        date = datetime.datetime.now()
+        date = str(date)
+        self.history.write(f"{date[:-7]} - {command}\n")
+    def historyRead(self):
+        hist = str(self.history_read.read())
+        return hist
 
 
 class Router:
@@ -97,8 +118,8 @@ class Router:
         self.driver.get('http://192.168.1.1')
         username = self.wait.until(EC.presence_of_element_located((By.NAME, "Login_Name")))
         password = self.wait.until(EC.presence_of_element_located((By.NAME, "Login_Pwd")))
-        username.send_keys("admin")
-        password.send_keys("admin")
+        username.send_keys(sett.modem_login)
+        password.send_keys(sett.modem_pass)
         password.send_keys(Keys.ENTER)
         sleep(0.5)
         self.driver.get("http://192.168.1.1/status/syslog.log")
@@ -112,3 +133,21 @@ class Router:
     def IP(self):
         print(self.realIP)
         return self.realIP
+
+class Dns:
+    def __init__(self):
+        self.dns_api = ""
+        self.dns_domain = ""
+        self.dns_ip = ""
+
+    def init_dns(self, api,domain, ip):
+        self.dns_api = api
+        self.dns_domain = domain
+        self.dns_ip = ip
+    
+    def run(self):
+            self.api = requests.get(f"https://www.duckdns.org/update?domains={self.dns_domain}&token={self.dns_api}&ip={self.dns_ip}")
+            if(self.api.status_code == 200):
+                return 1
+            else:
+                return 0

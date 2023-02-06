@@ -1,0 +1,5 @@
+telegram_api = ""
+duckdns_api = ""
+duckdns_domain_name = ""
+modem_login = "admin"
+modem_pass = "admin"

@@ -2,8 +2,9 @@ import time
 import telepot
 from command import Command
 from time import sleep
+import settings as sett
 
-bot_init = telepot.Bot('')
+bot_init = telepot.Bot(sett.telegram_api)
 com = Command(bot_init)
 
 def handle(msg):
@@ -23,4 +24,4 @@ while 1:
         print('\n Program sonlandı')
         exit()
     except:
-        print('Hata')
+        print('Xəta')
