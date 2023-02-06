@@ -8,6 +8,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
 from time import sleep
+from os import system
+from os.path import exists
 
 class Command:
     def __init__(self, bot):
@@ -18,6 +20,11 @@ class Command:
         self.command_type = command_type
         self.chat_id = chat_id
         self.chat_type = chat_type
+        self.ip = ""
+        self.dns_api = ""
+        self.dns_domain = "opiaz"
+        self.dns_ip = ""
+        self.script = ""
 
     def getCommand(self, command):
         if(self.command_type == 'document'):
@@ -27,32 +34,41 @@ class Command:
             self.set_command(command["text"])
 
     def set_command(self, command):
-        if(command == "/start"):
+        if(self.filter(command) == "/start"):
             self.bot.sendMessage(self.chat_id, str("ip\nzaman\nresim\nmuzik"))
-        elif(command == "ip"):
+        elif(self.filter(command) == "ip"):
             ipadd = requests.get('https://checkip.amazonaws.com').text.strip()
             self.bot.sendMessage(self.chat_id, str(ipadd))
-        elif(command == "time"):
+        elif(self.filter(command) == "time"):
             self.bot.sendMessage(self.chat_id, str(datetime.datetime.now()))
-        elif command == 'resim':
+        elif self.filter(command) == 'resim':
             self.bot.sendPhoto(self.chat_id, photo="https://images.all-free-download.com/images/graphicwebp/girl_posing_208124.webp")
-        elif command == 'dosya':
+        elif self.filter(command) == 'dosya':
             self.bot.sendDocument(self.chat_id, document=open('video.mp4'))
-        elif command == 'muzik':
+        elif self.filter(command) == 'muzik':
             self.bot.sendAudio(self.chat_id, audio=open('test.wav', 'rb'))
-        elif(command == "log image"):
+        elif(self.filter(command) == "log image"):
             self.bot.sendPhoto(self.chat_id, photo=open("image.png", "rb"))
-        elif(command == "log"):
+        elif(self.filter(command) == "log"):
             self.router.getIp()
             self.bot.sendDocument(self.chat_id, document=open("log.txt", "rb"))
-        elif(command == "real ip"):
+        elif(self.filter(command) == "real ip"):
             self.router.getIp()
-            ip = self.router.IP()
-            self.bot.sendMessage(self.chat_id, str(ip))
-        elif command == 'video':
+            self.ip = self.router.IP()
+            self.bot.sendMessage(self.chat_id, str(self.ip))
+        elif self.filter(command) == 'video':
             self.router.getIp()
-            ip = self.router.IP()
-            self.bot.sendDocument(self.chat_id, video=f'http://{ip}/video.mp4')
+            self.ip = self.router.IP()
+            self.bot.sendDocument(self.chat_id, video=f'http://{self.ip}/video.mp4')
+        elif(self.filter(command) == 'init dns'):
+            self.dns_ip = self.ip
+            self.script = f'echo url="https://www.duckdns.org/update?domains={self.dns_domain}&token={self.dns_api}&ip={self.dns_ip}" | curl -k -o duck.log -K -'
+            system(self.script)
+            if(exists("duck.log")):
+                self.bot.sendMessage(self.chat_id, str(f"{self.dns_domain}.duckdns.org"))
+            else:
+                self.bot.sendMessage(self.chat_id, str("Bir xəta baş verdi!"))
+
         else:
             self.bot.sendMessage(self.chat_id, str("Əmr yanlışdır!"))
 
@@ -64,6 +80,9 @@ class Command:
         pass
     def soundFile(self, file):
         pass
+    def filter(self, inp = ""):
+        return inp.lower()
+
 
 class Router:
     def __init__(self):
