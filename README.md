@@ -1,21 +1,18 @@
 # telegram-bot
 
 
-<b>git clone https://github.com/ramo828/telegram-bot.git</b>
+<b>git clone https://github.com/ramo828/telegram-bot.git</b><br/>
 
-<b>vim setting.py</b>
-Open the file and add your own settings.
+<b>vim setting.py</b><br/>
+Open the file and add your own settings. <br/>
 
-<b>pip install -r requirements.txt </b>
-Run the code to install the required packages.
-<b>python3 bot.py</b>
+<b>pip install -r requirements.txt </b><br/>
+Run the code to install the required packages.<br/>
+<b>python3 bot.py</b><br/>
+To update linux automatic dns.<br/>
+<b>crontab -e </b><br/>
+Then add the following line.<br/>
+<b>chmod +x init_ip.sh</b><br/>
+<b> */5 * * * * ~/telegram-bot/init_ip.sh> /dev/null 2>&1 </b><br/>
 
-
-To update linux automatic dns.
-
-<b>crontab -e </b>
-Then add the following line.
-<b>chmod +x init_ip.sh</b>
-<b> */5 * * * * ~/telegram-bot/init_ip.sh> /dev/null 2>&1 </b>
-
-With this command dns will be updated every 5 minutes.
+With this command dns will be updated every 5 minutes.<br/>
