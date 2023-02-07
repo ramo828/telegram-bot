@@ -1,3 +1,7 @@
+"""
+    Developper: Ramiz Mammadli
+"""
+
 import time
 import telepot
 from command import Command

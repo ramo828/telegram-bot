@@ -148,7 +148,6 @@ class Router:
 
 
     def IP(self):
-        print(self.realIP)
         return self.realIP
     def tearDown(self):
         self.driver.delete_all_cookies()
