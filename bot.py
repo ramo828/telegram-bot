@@ -5,7 +5,6 @@
 import time
 import telepot
 from command import Command
-from time import sleep
 import settings as sett
 
 bot_init = telepot.Bot(sett.telegram_api)
