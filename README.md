@@ -3,10 +3,11 @@
 
 <b>git clone https://github.com/ramo828/telegram-bot.git</b>
 
-<b>vim setting.py</b> Open the file and add your own settings
+<b>vim setting.py</b>
+Open the file and add your own settings
 
-<b>pip install -r requirements.txt </b> Run the code to install the required packages
-
+<b>pip install -r requirements.txt </b>
+Run the code to install the required packages
 <b>python3 bot.py</b>
 
 
